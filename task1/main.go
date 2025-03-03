@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
 
 func main() {
 	// Initialize variables
@@ -9,12 +13,16 @@ func main() {
 	height := 0.0
 
 	// Prompt user for input
+	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Enter your name:")
-	fmt.Scanf("%s", &name)
+	name, _ = reader.ReadString('\n')
 	fmt.Println("Enter your weight in kg:")
 	fmt.Scanf("%f", &weight)
 	fmt.Println("Enter your height in meters:")
 	fmt.Scanf("%f", &height)
+
+	fmt.Printf("\nWelcome, %s! Let's calculate your BMI.\n", name)
+	fmt.Printf("Formula used: BMI = weight (kg) / (height (m) * height (m))\n\n")
 
 	// Calculate BMI
 	bmi := weight / (height * height)
@@ -24,15 +32,14 @@ func main() {
 	status := ""
 	if bmi < 18.5 {
 		status = "Underweight"
-	}
-	if bmi >= 18.5 && bmi < 25 {
+	} else if bmi >= 18.5 && bmi < 25 {
 		status = "Normal weight"
-	}
-	if bmi >= 25 && bmi < 30 {
+	} else if bmi >= 25 && bmi < 30 {
 		status = "Overweight"
-	}
-	if bmi >= 30 {
+	} else if bmi >= 30 {
 		status = "Obese"
+	} else {
+		status = "Invalid BMI"
 	}
 
 	fmt.Println("Health Status:", status)
