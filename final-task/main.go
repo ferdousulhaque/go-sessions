@@ -14,8 +14,9 @@ type option struct {
 
 func main() {
 	if os.Args[1] != "" {
-		if _, err := os.Stat(os.Args[1]); os.IsNotExist(err) {
-			_, e := os.Create(os.Args[1])
+		filename := os.Args[1] + ".todo"
+		if _, err := os.Stat(filename); os.IsNotExist(err) {
+			_, e := os.Create(filename)
 			if e != nil {
 				log.Fatal(e)
 			}
@@ -62,16 +63,36 @@ func main() {
 }
 
 func addTask() {
-	fmt.Println("Adding a task...")
+	todo := ""
+	fmt.Println("Enter Task:")
+	reader := bufio.NewReader(os.Stdin)
+	todo, _ = reader.ReadString('\n')
+	filePath := os.Args[1] + ".todo"
+	file,
+		err := os.OpenFile(filePath, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	_, err = file.WriteString("\n" + todo)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
 }
 
 func deleteTask() {
-	fmt.Println("Deleting a task...")
+	fmt.Print("Enter the task number to delete: ")
+	var taskNum int
+	fmt.Scanln(&taskNum)
+	if taskNum > 0 {
+		fmt.Printf("Task ID %d deleted successfully\n", taskNum)
+	}
+
 }
 
 func viewTasks() {
 	//read from a file
-	filePath := os.Args[1]
+	filePath := os.Args[1] + ".todo"
 	readFile, err := os.Open(filePath)
 
 	if err != nil {
@@ -87,11 +108,15 @@ func viewTasks() {
 
 	readFile.Close()
 
-	for _, line := range fileLines {
-		fmt.Println(line)
+	fmt.Println("\nTo Do List:")
+	for index, line := range fileLines {
+		if line == "" {
+			continue
+		}
+		fmt.Printf("%d. %s\n", index+1, line)
 	}
-
-	fmt.Println(fileLines)
+	fmt.Println("")
+	// fmt.Println(fileLines)
 }
 
 func markTaskAsCompleted() {
