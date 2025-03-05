@@ -3,7 +3,7 @@
 
 ## Tasks
 
-### Day 1
+### Task 1
 
 1. Use const for storing the BMI formula message.
 2. Use fmt.Scanf or fmt.Scanln or bufio to take user inputs.
@@ -23,3 +23,11 @@ Formula used: BMI = weight (kg) / (height (m) * height (m))
 
 Your BMI is: 23.53
 Health Status: Normal weight // optional
+
+### Final Task
+
+CLI-Based To-Do App Task
+1. Add a Task
+2. List Tasks
+3. Mark a Task as Completed
+4. Delete a Task
