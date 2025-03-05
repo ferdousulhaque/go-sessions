@@ -26,13 +26,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Welcome to your daily To-Do list!")
-	fmt.Println("Please select an option:")
+	fmt.Println("To-Do List:")
 	options := []option{
-		{Text: "Add a task", Value: 1},
-		{Text: "Delete a task", Value: 2},
-		{Text: "View tasks", Value: 3},
-		{Text: "Mark task as completed", Value: 4},
+		{Text: "Add a Task", Value: 1},
+		{Text: "List tasks", Value: 2},
+		{Text: "Mark a Task as completed", Value: 3},
+		{Text: "Delete a Task", Value: 4},
 		{Text: "Exit", Value: 5},
 	}
 	// Print options
@@ -42,7 +41,7 @@ func main() {
 
 	// Get user input
 	var choice int
-	fmt.Print("Enter your choice: ")
+	fmt.Print("Enter choice: ")
 	fmt.Scanln(&choice)
 
 	// Process user input
@@ -50,11 +49,11 @@ func main() {
 	case 1:
 		addTask()
 	case 2:
-		deleteTask()
-	case 3:
 		viewTasks()
-	case 4:
+	case 3:
 		markTaskAsCompleted()
+	case 4:
+		deleteTask()
 	case 5:
 		os.Exit(0)
 	default:
@@ -76,6 +75,8 @@ func addTask() {
 	_, err = file.WriteString("\n" + todo)
 	if err != nil {
 		fmt.Println(err)
+	} else {
+		fmt.Println("Task added!")
 	}
 	defer file.Close()
 }
@@ -85,9 +86,14 @@ func deleteTask() {
 	var taskNum int
 	fmt.Scanln(&taskNum)
 	if taskNum > 0 {
+		err := DeleteLineInFile(os.Args[1]+".todo", taskNum)
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			fmt.Println("Line deleted successfully.")
+		}
 		fmt.Printf("Task ID %d deleted successfully\n", taskNum)
 	}
-
 }
 
 func viewTasks() {
@@ -120,5 +126,97 @@ func viewTasks() {
 }
 
 func markTaskAsCompleted() {
-	fmt.Println("Marking a task as completed...")
+	fmt.Print("Enter the task number to mark completed: ")
+	var taskNum int
+	fmt.Scanln(&taskNum)
+	if taskNum > 0 {
+		err := ModifyLineInFile(os.Args[1]+".todo", taskNum, "[x] ")
+		if err != nil {
+			fmt.Println("Error:", err)
+		} else {
+			fmt.Println("Task marked as completed!")
+		}
+	}
+}
+
+// ModifyLineInFile modifies a specific line in a file by adding a prefix to it.
+func ModifyLineInFile(filename string, lineNumber int, prefix string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	currentLine := 1
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if currentLine == lineNumber {
+			line = prefix + line // Add prefix to the specified line
+		}
+		lines = append(lines, line)
+		currentLine++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	// Write back to file
+	file, err = os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	for _, line := range lines {
+		_, err := writer.WriteString(line + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	return writer.Flush()
+}
+
+// DeleteLineInFile deletes a specific line in a file.
+func DeleteLineInFile(filename string, lineNumber int) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	currentLine := 1
+
+	for scanner.Scan() {
+		if currentLine != lineNumber {
+			lines = append(lines, scanner.Text())
+		}
+		currentLine++
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+
+	// Write back to file
+	file, err = os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	for _, line := range lines {
+		_, err := writer.WriteString(line + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	return writer.Flush()
 }
