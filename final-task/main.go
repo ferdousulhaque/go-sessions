@@ -108,7 +108,7 @@ func viewTasks() {
 
 	readFile.Close()
 
-	fmt.Println("\nTo Do List:")
+	fmt.Println("\nYour Tasks:")
 	for index, line := range fileLines {
 		if line == "" {
 			continue
